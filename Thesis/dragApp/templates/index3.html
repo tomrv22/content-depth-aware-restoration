@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Canvas App</title>
+    <style>
+        /* Center the container horizontally and vertically */
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh; /* Set the container height to the full viewport height */
+        }
+
+        /* Add a black border to the canvas element */
+        #canvas {
+            border: 1px solid #000; /* Black border with 1-pixel width */
+        }
+
+        /* Style the buttons */
+        .button-container {
+            display: flex;
+        }
+
+        .button-container button {
+            margin: 10px; /* Add some margin for spacing */
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="container">
+        <canvas id="canvas" width="800" height="600"></canvas>
+        <div class="button-container">
+            <button id="loadImages">Load Images</button>
+            <button id="rearrangeImages">Default positions</button>
+            <button id="saveCanvas">Save Canvas</button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let images = [];
+        let offsetX = 0;
+        let offsetY = 0;
+        let dragging = false;
+        let selectedImage = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let largestWidth = 800; // Initialize with default canvas width
+        let largestHeight = 600; // Initialize with default canvas height
+
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const mouseX = e.clientX - canvas.getBoundingClientRect().left;
+            const mouseY = e.clientY - canvas.getBoundingClientRect().top;
+
+            for (let i = images.length - 1; i >= 0; i--) {
+                const image = images[i];
+                if (
+                    mouseX > image.x + offsetX &&
+                    mouseX < image.x + image.image.width + offsetX &&
+                    mouseY > image.y + offsetY &&
+                    mouseY < image.y + image.image.height + offsetY
+                ) {
+                    selectedImage = image;
+                    if (confirm('Are you sure you want to delete this image?')) {
+                        images.splice(i, 1);
+                        updateCanvasSize();
+                        drawImages();
+                    }
+                    break;
+                }
+            }
+        });
+
+	// Define a variable to store the final image positions
+	let finalImagePositions = [];
+
+
+        canvas.addEventListener('dblclick', (e) => {
+            const mouseX = e.clientX - canvas.getBoundingClientRect().left;
+            const mouseY = e.clientY - canvas.getBoundingClientRect().top;
+
+            for (let i = images.length - 1; i >= 0; i--) {
+                const image = images[i];
+                if (
+                    mouseX > image.x + offsetX &&
+                    mouseX < image.x + image.image.width + offsetX &&
+                    mouseY > image.y + offsetY &&
+                    mouseY < image.y + image.image.height + offsetY
+                ) {
+                    images.splice(i, 1); // Remove the double-clicked image
+
+                    // Reinsert it at the beginning of the array (send to back)
+                    images.unshift(image);
+
+                    updateCanvasSize();
+                    drawImages();
+                    break;
+                }
+            }
+        });
+
+
+        function createImage(url) {
+            return new Promise((resolve) => {
+                const image = new Image();
+                image.src = url;
+                image.onload = () => {
+                    resolve({
+                        image: image,
+                        x: 100,
+                        y: 100
+                    });
+                };
+                image.addEventListener('mousedown', (e) => {
+                    const mouseX = e.clientX - canvas.getBoundingClientRect().left;
+                    const mouseY = e.clientY - canvas.getBoundingClientRect().top;
+                    dragging = image;
+                    dragOffsetX = mouseX - image.x - offsetX;
+                    dragOffsetY = mouseY - image.y - offsetY;
+                    images.splice(images.indexOf(dragging), 1);
+                    images.push(dragging);
+                });
+            });
+        }
+
+        document.getElementById('loadImages').addEventListener('click', () => {
+            // Request image URLs from the server using AJAX
+            fetch('/get_image_urls')
+                .then(response => response.json())
+                .then(data => {
+                    // Clear existing images
+                    images = [];
+        
+                    // Preload the images and add them to the images array
+                    Promise.all(data.map(url => createImage(url)))
+                        .then(loadedImages => {
+                            images = loadedImages;
+        
+                            // Adjust canvas size to the largest image
+                            largestWidth = 0;
+                            largestHeight = 0;
+        
+                            for (const image of images) {
+                                if (image.image.width > largestWidth) {
+                                    largestWidth = image.image.width;
+                                }
+                                if (image.image.height > largestHeight) {
+                                    largestHeight = image.image.height;
+                                }
+                            }
+        
+                            canvas.width = largestWidth;
+                            canvas.height = largestHeight;
+        
+                            drawImages();
+                        });
+                })
+                .catch(error => {
+                    console.error('Error loading images:', error);
+                });
+        });
+
+        
+        document.getElementById('rearrangeImages').addEventListener('click', () => {
+            // Call a function to rearrange images based on a text file
+            rearrangeImagesFromTextFile();
+        });
+    
+        function rearrangeImagesFromTextFile() {
+            // Fetch image positions from a text file
+            fetch('/get_image_positions')
+                .then(response => response.text())
+                .then(data => {
+                    const lines = data.split('\n');
+                    const newImagePositions = lines.map(line => {
+                        const [imageUrl, x, y] = line.split(' ');
+                        return { imageUrl, x: parseInt(x), y: parseInt(y) };
+                    });
+    
+                    // Rearrange the images to the new positions
+                    for (let i = 0; i < images.length; i++) {
+                        const image = images[i];
+                        const currentPosition = newImagePositions.find(position => position.imageUrl === image.image.src);
+        
+                        if (currentPosition) {
+                            const { x, y } = currentPosition;
+                            image.x = x; // Update the x position
+                            image.y = y; // Update the y position
+                        }
+                    }
+    
+                    // Redraw the images with their new positions
+                    drawImages();
+                })
+                .catch(error => {
+                    console.error('Error rearranging images:', error);
+                });
+        }
+
+        document.getElementById('saveCanvas').addEventListener('click', () => {
+            const canvasImage = canvas.toDataURL('image/jpeg', 1.0);
+            
+            // Send the canvas image data to the server for saving
+            fetch('/save_canvas', {
+                method: 'POST',
+                body: JSON.stringify({ image: canvasImage }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error saving canvas image:', error);
+            });
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            const mouseX = e.clientX - canvas.getBoundingClientRect().left;
+            const mouseY = e.clientY - canvas.getBoundingClientRect().top;
+
+            let topImage = null;
+            for (let i = images.length - 1; i >= 0; i--) {
+                const image = images[i];
+                if (
+                    mouseX > image.x + offsetX &&
+                    mouseX < image.x + image.image.width + offsetX &&
+                    mouseY > image.y + offsetY &&
+                    mouseY < image.y + image.image.height + offsetY
+                ) {
+                    topImage = image;
+                    break;
+                }
+            }
+
+            if (topImage) {
+                dragging = topImage;
+                dragOffsetX = mouseX - topImage.x - offsetX;
+                dragOffsetY = mouseY - topImage.y - offsetY;
+                images.splice(images.indexOf(dragging), 1);
+                images.push(dragging);
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (dragging) {
+                const mouseX = e.clientX - canvas.getBoundingClientRect().left;
+                const mouseY = e.clientY - canvas.getBoundingClientRect().top;
+
+                dragging.x = mouseX - offsetX - dragOffsetX;
+                dragging.y = mouseY - offsetY - dragOffsetY;
+                drawImages();
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            dragging = false;
+        });
+
+        function updateCanvasSize() {
+            canvas.width = largestWidth;
+            canvas.height = largestHeight;
+        }
+
+        function drawImages() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (const image of images) {
+                ctx.drawImage(image.image, image.x + offsetX, image.y + offsetY);
+            }
+
+        }
+        
+        // Automatically trigger the "Load Images" button when the page loads
+        window.onload = function() {
+            document.getElementById("loadImages").click();
+            // Add a delay to trigger the "Rearrange Images" button
+            setTimeout(function() {
+                document.getElementById("rearrangeImages").click();
+            }, 1000); // Adjust the delay as needed
+        };
+    </script>
+</body>
+</html>
