@@ -13,6 +13,7 @@ zero (0) can be used to skip the model altogether.
 #### Execution of the pipeline
 Users can use the "Automate" button to execute the first 4 stages of the pipeline after making their preferred choice of models for each stage. If unsatisfied with the execution of a step, the user can come back and resume the execution from that particular step using the separate "Process" button from each Tab. 
 
+##### Input image
 The image to work on should be present inside the '/Thesis/Images' directory and should be selected from the main dropdown before the Tabs. 
 
 Fine Tuning stage allows the user to make prompt-based edits to individual objects or even background. The 'Image Editor' Tab permits layout customization using a simple dragging functionality. The link in this Tab takes the user to a web-based application running on another port of the machine. Here the user can reposition the objects in x, y, and z directions and even remove objects if they want to.
