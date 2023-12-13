@@ -10,11 +10,13 @@ Use the Final Pipeline.ipynb file to run the pipeline in Jupyter Notebook ipywid
 ### User editable configuration file
 The integers inside the list are the stages of the pipeline the corresponding model can be used. Negative signs make the model the default choice for that stage.
 zero (0) can be used to skip the model altogether. 
+
 <img width="421" alt="gitlab2" src="https://github.com/tomrv22/content-depth-aware-restoration/assets/105001497/3ed51ed4-697a-4a04-af25-78c10ca57e5a">
 
 
 ### Execution of the pipeline
 Users can use the "Automate" button to execute the first 4 stages of the pipeline after making their preferred choice of models for each stage. If unsatisfied with the execution of a step, the user can come back and resume the execution from that particular step using the separate "Process" button from each Tab. 
+
 <img width="496" alt="gitlab1" src="https://github.com/tomrv22/content-depth-aware-restoration/assets/105001497/124baf54-e2b6-44dd-8e66-4b4a8234935b">
 
 
