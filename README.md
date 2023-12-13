@@ -7,7 +7,7 @@ The pipeline needs a Python version 3.8.6 and CUDA 11.7.0
 ## Testing the pipeline
 Use the Final Pipeline.ipynb file to run the pipeline in Jupyter Notebook ipywidgets.
 
-### User editable configuration file
+### User-editable configuration file
 The integers inside the list are the stages of the pipeline the corresponding model can be used. Negative signs make the model the default choice for that stage.
 zero (0) can be used to skip the model altogether. 
 
@@ -24,6 +24,8 @@ Users can use the "Automate" button to execute the first 4 stages of the pipelin
 The image to work on should be present inside the '/Thesis/Images' directory and should be selected from the main dropdown before the Tabs. 
 
 ![zebra_test2](https://github.com/tomrv22/content-depth-aware-restoration/assets/105001497/f7ff4819-4075-4a3c-9f85-63cba70237f1)
+
+#### Custom layout and Fine tuning
 
 Fine Tuning stage allows the user to make prompt-based edits to individual objects or even background. The 'Image Editor' Tab permits layout customization using a simple dragging functionality. The link in this Tab takes the user to a web-based application running on another port of the machine. Here the user can reposition the objects in x, y, and z directions and even remove objects if they want to.
 
