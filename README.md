@@ -10,11 +10,15 @@ Use the Final Pipeline.ipynb file to run the pipeline in Jupyter Notebook ipywid
 ### User editable configuration file
 The integers inside the list are the stages of the pipeline the corresponding model can be used. Negative signs make the model the default choice for that stage.
 zero (0) can be used to skip the model altogether. 
+<img width="427" alt="image" src="https://github.com/tomrv22/content-depth-aware-restoration/assets/105001497/e5fa38cc-4163-415e-a230-8908ed742f68">
+
 ### Execution of the pipeline
 Users can use the "Automate" button to execute the first 4 stages of the pipeline after making their preferred choice of models for each stage. If unsatisfied with the execution of a step, the user can come back and resume the execution from that particular step using the separate "Process" button from each Tab. 
+<img width="496" alt="image" src="https://github.com/tomrv22/content-depth-aware-restoration/assets/105001497/f52de5c1-3a21-4e44-a64d-ab5caa9b7bb3">
 
 #### Input image
 The image to work on should be present inside the '/Thesis/Images' directory and should be selected from the main dropdown before the Tabs. 
+![zebra_test2](https://github.com/tomrv22/content-depth-aware-restoration/assets/105001497/f7ff4819-4075-4a3c-9f85-63cba70237f1)
 
 Fine Tuning stage allows the user to make prompt-based edits to individual objects or even background. The 'Image Editor' Tab permits layout customization using a simple dragging functionality. The link in this Tab takes the user to a web-based application running on another port of the machine. Here the user can reposition the objects in x, y, and z directions and even remove objects if they want to.
 
