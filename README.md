@@ -1,4 +1,4 @@
-# content-depth-aware-restoration
+# content-aware depth-adaptive image-restoration
 
 ## Setup environment
 The requirements.txt file contains all the modules required to execute the pipeline using any model provided in the Codes directory. 
