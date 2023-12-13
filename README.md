@@ -20,5 +20,6 @@ Fine Tuning stage allows the user to make prompt-based edits to individual objec
 The "Default positions" button in the app allows one to maintain the original position of the objects from the parent image. Double-clicking any object in this editor sends the object to the background. Right-clicking allows the user to delete the objects. Clicking the "Save Canvas" button exits the app and saves the image which can be displayed in the "Restored Image" stage in the pipeline. 
 
 The following video shows in detail each step that is explained above
+
 https://github.com/tomrv22/content-depth-aware-restoration/assets/105001497/7ad8af98-3f56-4c27-b6ae-96d8638729ca
 
